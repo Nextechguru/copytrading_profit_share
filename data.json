@@ -1,6 +1,175 @@
 {
-  "accounts": [],
+  "accounts": [
+    {
+      "name": "Mehmood Iqbal",
+      "login": "17258",
+      "type": "USD",
+      "status": "Inactive",
+      "skyrissEmail": "trendify.team02+1011@gmail.com",
+      "crmPass": "Password#123"
+    },
+    {
+      "name": "Awais Gulzar",
+      "login": "18974",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+516@gmail.com",
+      "crmPass": "Awais@786"
+    },
+    {
+      "name": "Ghulam Fakhar",
+      "login": "18586",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+475@gmail.com",
+      "crmPass": "Fakhar@6062"
+    },
+    {
+      "name": "Muhammad Asif",
+      "login": "18580",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+472@gmail.com",
+      "crmPass": "Asif@786"
+    },
+    {
+      "name": "Hassam Mehmood",
+      "login": "19103",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+533@gmail.com",
+      "crmPass": "SkillLeo@571"
+    },
+    {
+      "name": "Muhammad Saleem",
+      "login": "19477",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+581@gmail.com",
+      "crmPass": "Saleem@1985"
+    },
+    {
+      "name": "Malik M. Naeem",
+      "login": "19448",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+568@gmail.com",
+      "crmPass": "Naeem@1970"
+    },
+    {
+      "name": "Fakhar Abbas Nasir",
+      "login": "18582",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+473@gmail.com",
+      "crmPass": "Abbas@2401"
+    },
+    {
+      "name": "Ahmad Ali Nawaz",
+      "login": "17553",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+1028@gmail.com",
+      "crmPass": "Password#123"
+    },
+    {
+      "name": "Muhammad Tayyab",
+      "login": "18642",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+485@gmail.com",
+      "crmPass": "Tayyab@937"
+    },
+    {
+      "name": "Asifa Naheed",
+      "login": "19239",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+389@gmail.com",
+      "crmPass": "Password#123"
+    },
+    {
+      "name": "Zulfiqar Haider",
+      "login": "19578",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+597@gmail.com",
+      "crmPass": "Haider@12"
+    },
+    {
+      "name": "Mariyam Bibi",
+      "login": "19671",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+442@gmail.com",
+      "crmPass": "Sana@0000"
+    },
+    {
+      "name": "Muhammad Tayyab 2",
+      "login": "19809",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+485@gmail.com",
+      "crmPass": "Tayyab@937"
+    },
+    {
+      "name": "Shiza Abdul Razzaq",
+      "login": "19961",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+628@gmail.com",
+      "crmPass": "Shiza@321"
+    },
+    {
+      "name": "Shahzad Hussain",
+      "login": "18926",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+511@gmail.com",
+      "crmPass": "Ppakistan@1976"
+    },
+    {
+      "name": "Rabia Bibi",
+      "login": "20067",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+636@gmail.com",
+      "crmPass": "Umar14526$"
+    },
+    {
+      "name": "Rabia Bibi 2",
+      "login": "20070",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+638@gmail.com",
+      "crmPass": "Rabia10101$"
+    },
+    {
+      "name": "Shakeel Ahmed",
+      "login": "20196",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+646@gmail.com",
+      "crmPass": "Khan7080@"
+    },
+    {
+      "name": "Sultan Afsar",
+      "login": "19354",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+546@gmail.com",
+      "crmPass": "Khan7589@"
+    },
+    {
+      "name": "Sajjad Haider",
+      "login": "20195",
+      "type": "Cent",
+      "status": "Active",
+      "skyrissEmail": "trendify.team02+645@gmail.com",
+      "crmPass": "Sajjad.123"
+    }
+  ],
   "ledger": [],
   "walletLog": [],
-  "updatedAt": ""
+  "updatedAt": "2026-06-05T06:56:05.734Z"
 }
