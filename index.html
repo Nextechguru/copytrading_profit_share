@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIS Markets — Fee Tracker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;background:#f0f3f8;color:#1a1a1a;font-size:14px;}
+.app{max-width:1150px;margin:0 auto;padding:16px;}
+
+.header{background:#1F3864;border-radius:10px;padding:14px 20px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.header-title{color:#fff;font-size:16px;font-weight:700;}
+.header-sub{color:#a8c4e8;font-size:11px;margin-top:2px;}
+
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.tab{padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;border:1px solid #ccc;background:#fff;color:#555;font-weight:500;}
+.tab.active{background:#1F3864;color:#fff;border-color:#1F3864;}
+.tab:hover:not(.active){background:#eee;}
+
+.card{background:#fff;border:1px solid #dde3ec;border-radius:10px;overflow:hidden;margin-bottom:14px;}
+.card-header{padding:11px 16px;font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:space-between;}
+.ch-red{background:#C00000;}.ch-navy{background:#1F3864;}.ch-green{background:#375623;}.ch-blue{background:#2E75B6;}.ch-purple{background:#5B2C6F;}
+
+/* Date bar */
+.date-bar{background:#fff;border:1px solid #dde3ec;border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.date-bar label{font-size:13px;font-weight:700;color:#1F3864;}
+.date-bar input[type=date]{padding:7px 12px;border:2px solid #2E75B6;border-radius:8px;font-size:14px;font-weight:600;color:#1F3864;cursor:pointer;}
+.date-bar input[type=date]:focus{outline:none;border-color:#1F3864;}
+.date-nav{display:flex;gap:6px;}
+.date-nav button{padding:7px 14px;border:1px solid #ccc;border-radius:7px;background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:#555;}
+.date-nav button:hover{background:#f0f3f8;border-color:#2E75B6;color:#1F3864;}
+.date-info{margin-left:auto;font-size:12px;color:#666;background:#f0f3f8;padding:6px 12px;border-radius:6px;}
+
+/* Tables */
+.tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.tbl th{background:#eef2f9;color:#1F3864;font-weight:700;font-size:11px;padding:8px 6px;text-align:center;border-bottom:1px solid #cdd6e6;}
+.tbl td{padding:6px 5px;border-bottom:1px solid #f0f4fb;text-align:center;vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:#f8faff;}
+.th-y{background:#FFF9E6!important;color:#7B5E00!important;}
+.td-left{text-align:left!important;padding-left:10px!important;}
+
+.inp{width:100%;padding:5px 6px;border:1.5px solid #FFC107;border-radius:5px;background:#FFFDE7;font-size:12px;text-align:center;color:#333;}
+.inp:focus{outline:none;border-color:#e67e00;box-shadow:0 0 0 2px rgba(255,193,7,0.25);}
+.inp:disabled{background:#E8F5E9;border-color:#81C784;color:#2e7d32;cursor:not-allowed;}
+.calc-td{background:#F1F8E9;color:#2e7d32;font-weight:700;}
+
+.tag-usd{background:#E8F5E9;color:#2e7d32;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:700;}
+.tag-cent{background:#F3E5F5;color:#6a1b9a;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:700;}
+.st-ready{background:#C6EFCE;color:#375623;font-size:11px;padding:3px 9px;border-radius:4px;font-weight:700;display:inline-block;}
+.st-wait{background:#FFEB9C;color:#7B5E00;font-size:11px;padding:3px 8px;border-radius:4px;display:inline-block;}
+.st-done{background:#BDD7EE;color:#1F3864;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:700;display:inline-block;}
+.st-wd-ready{background:#C6EFCE;color:#375623;font-size:11px;padding:3px 9px;border-radius:4px;font-weight:700;display:inline-block;}
+.st-wd-wait{background:#f5f5f5;color:#888;font-size:11px;padding:3px 8px;border-radius:4px;display:inline-block;}
+
+.btn{border:none;border-radius:7px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;}
+.btn-green{background:#375623;color:#fff;} .btn-green:hover{background:#2a4019;}
+.btn-blue{background:#2E75B6;color:#fff;} .btn-blue:hover{background:#1a5a9c;}
+.btn-red{background:#C00000;color:#fff;} .btn-red:hover{background:#900000;}
+.btn-sm{padding:4px 12px;font-size:11px;border-radius:5px;}
+.btn-outline{background:#fff;border:1px solid #bbb;color:#555;} .btn-outline:hover{background:#f5f5f5;}
+.btn:disabled{background:#bbb;cursor:not-allowed;}
+
+.alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;}
+.al-ok{background:#E8F5E9;color:#2e7d32;border:1px solid #81C784;}
+.al-warn{background:#FFF9E6;color:#7B5E00;border:1px solid #FFC107;}
+.al-info{background:#E3F2FD;color:#0d47a1;border:1px solid #90CAF9;}
+.al-err{background:#FFEBEE;color:#b71c1c;border:1px solid #EF9A9A;}
+
+.footer-bar{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#f8faff;border-top:1px solid #dde3ec;}
+.hint{font-size:12px;color:#666;}
+.divider{height:1px;background:#eee;}
+.empty{padding:24px;text-align:center;color:#aaa;font-size:13px;}
+
+.legend{display:flex;gap:14px;padding:9px 16px;background:#fafbff;border-bottom:1px solid #eee;flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#666;}
+.leg-box{width:13px;height:13px;border-radius:3px;}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;padding:14px;}
+.kpi{background:#f5f7fa;border-radius:8px;padding:14px;}
+.kpi-lbl{font-size:11px;color:#888;margin-bottom:5px;line-height:1.3;}
+.kpi-val{font-size:22px;font-weight:700;color:#1F3864;}
+.kpi-g .kpi-val{color:#375623;} .kpi-a .kpi-val{color:#e67e00;} .kpi-r .kpi-val{color:#C00000;}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;}
+.modal{background:#fff;border-radius:12px;padding:24px;width:460px;max-width:100%;max-height:90vh;overflow-y:auto;}
+.modal h3{font-size:15px;color:#1F3864;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #eee;}
+.form-row{margin-bottom:12px;}
+.form-row label{font-size:12px;color:#555;display:block;margin-bottom:4px;font-weight:600;}
+.form-row input,.form-row select{width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:7px;font-size:13px;color:#333;}
+.form-row input:focus,.form-row select:focus{outline:none;border-color:#2E75B6;}
+.modal-footer{display:flex;gap:8px;margin-top:16px;}
+
+.wd-card{background:#fff;border:1px solid #dde3ec;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.wd-card-left .name{font-size:14px;font-weight:700;color:#1F3864;}
+.wd-card-left .login{font-size:11px;color:#888;font-family:monospace;margin-top:2px;}
+.wd-card-middle{text-align:center;}
+.wd-card-middle .label{font-size:10px;color:#888;margin-bottom:3px;}
+.wd-card-middle .amount{font-size:20px;font-weight:700;}
+.amt-green{color:#375623;} .amt-orange{color:#e67e00;} .amt-gray{color:#bbb;}
+
+.hidden{display:none!important;}
+
+/* Login Screen */
+.login-screen{position:fixed;inset:0;background:#1F3864;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
+.login-box{background:#fff;border-radius:16px;padding:36px 32px;width:380px;max-width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.login-logo{font-size:40px;margin-bottom:8px;}
+.login-title{font-size:20px;font-weight:700;color:#1F3864;margin-bottom:4px;}
+.login-sub{font-size:12px;color:#888;margin-bottom:28px;}
+.login-label{font-size:12px;font-weight:700;color:#555;display:block;text-align:left;margin-bottom:5px;}
+.login-input{width:100%;padding:11px 14px;border:2px solid #dde3ec;border-radius:8px;font-size:14px;color:#333;letter-spacing:2px;margin-bottom:6px;text-align:center;}
+.login-input:focus{outline:none;border-color:#2E75B6;}
+.login-btn{width:100%;padding:12px;background:#1F3864;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px;}
+.login-btn:hover{background:#162d50;}
+.login-error{font-size:12px;color:#C00000;min-height:18px;margin-bottom:4px;}
+.login-attempts{font-size:11px;color:#aaa;margin-top:12px;}
+.sync-ok{background:#C6EFCE;color:#375623;}
+.sync-err{background:#FFEB9C;color:#7B5E00;}
+.sync-ing{background:#DCE6F1;color:#1F3864;}
+.hist-tab{background:transparent;border:none;color:rgba(255,255,255,0.6);padding:12px 22px;font-size:13px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;transition:all 0.15s;}
+.hist-tab:hover{color:#fff;background:rgba(255,255,255,0.08);}
+.hist-tab.active{color:#fff;border-bottom:3px solid #FFC107;background:rgba(255,255,255,0.1);}
+.cred-card{background:#1F3864;border-radius:8px;padding:12px 14px;margin-bottom:14px;}
+.cred-card .cred-title{color:#a8c4e8;font-size:11px;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.cred-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;gap:8px;}
+.cred-row:last-child{margin-bottom:0;}
+.cred-label{color:#a8c4e8;font-size:11px;min-width:80px;}
+.cred-value{color:#fff;font-size:13px;font-weight:700;font-family:monospace;flex:1;word-break:break-all;}
+.copy-btn{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:#fff;border-radius:5px;padding:3px 10px;font-size:11px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.copy-btn:hover{background:rgba(255,255,255,0.28);}
+.copy-btn.copied{background:#375623;border-color:#375623;}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
+</style>
+</head>
+<body>
+<!-- LOGIN SCREEN -->
+<div id="login-screen" class="login-screen">
+  <div class="login-box">
+    <div class="login-logo">&#128200;</div>
+    <div class="login-title">BIS Markets</div>
+    <div class="login-sub">Copytrading Fee Tracker — Staff Only</div>
+    <label class="login-label">Enter Access Password</label>
+    <input type="password" id="login-pass" class="login-input" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" maxlength="30"
+      onkeydown="if(event.key==='Enter') checkLogin()">
+    <div class="login-error" id="login-error"></div>
+    <button class="login-btn" onclick="checkLogin()">&#128274; Login</button>
+    <div class="login-attempts" id="login-attempts"></div>
+  </div>
+</div>
+
+<!-- GITHUB CONFIG MODAL -->
+<div class="overlay" id="gh-modal" style="z-index:999;">
+  <div class="modal" style="max-width:500px;">
+    <h3 style="color:#1F3864;font-size:16px;margin-bottom:6px;">&#9881; GitHub Setup</h3>
+    <p style="font-size:12px;color:#666;margin-bottom:16px;line-height:1.6;">
+      Your data will be saved in a <code>data.json</code> file inside your GitHub repo.<br>
+      All team members using the same repo will share the same data.
+    </p>
+
+    <div style="background:#FFF9E6;border:1px solid #FFC107;border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:#7B5E00;line-height:1.7;">
+      <strong>How to get a GitHub Token:</strong><br>
+      1. Go to <strong>github.com</strong> → Login<br>
+      2. Top-right avatar → <strong>Settings</strong><br>
+      3. Left sidebar → <strong>Developer settings</strong> → <strong>Personal access tokens</strong> → <strong>Tokens (classic)</strong><br>
+      4. Click <strong>Generate new token (classic)</strong><br>
+      5. Give it a name (e.g. <em>bis-tracker</em>), tick only <strong>repo</strong> checkbox<br>
+      6. Click Generate → Copy the token (starts with <code>ghp_</code>)
+    </div>
+
+    <div class="form-row">
+      <label>GitHub Username</label>
+      <input type="text" id="gh-user" placeholder="e.g. abbaskhan">
+    </div>
+    <div class="form-row">
+      <label>Repository Name</label>
+      <input type="text" id="gh-repo" placeholder="e.g. bis-tracker">
+    </div>
+    <div class="form-row">
+      <label>Personal Access Token</label>
+      <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+    </div>
+    <div class="form-row">
+      <label>Branch (leave as main)</label>
+      <input type="text" id="gh-branch" placeholder="main" value="main">
+    </div>
+    <div id="gh-error" style="font-size:12px;color:#b71c1c;margin-bottom:8px;"></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-green" onclick="ghSaveConfig()" style="flex:1;">&#10003; Connect to GitHub</button>
+      <button class="btn btn-outline" onclick="ghSkip()" id="gh-skip-btn" style="display:none;">Skip (Local only)</button>
+    </div>
+    <div style="margin-top:10px;text-align:center;">
+      <a href="#" onclick="ghSkip();return false;" style="font-size:11px;color:#888;">Use local storage only (data won't sync across devices)</a>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="main-app" style="display:none;">
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="header-title">&#128200; BIS Markets — Copytrading Fee Tracker</div>
+    <div class="header-sub">50% daily profit fee settlement | Data: Browser Local Storage</div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    <span id="sync-badge" class="sync-ok" style="font-size:11px;padding:5px 10px;border-radius:6px;font-weight:600;background:#C6EFCE;color:#375623;">&#10003; Local</span>
+    <button class="btn btn-outline btn-sm" onclick="exportData()" style="font-size:11px;">&#128229; Export</button>
+    <button class="btn btn-outline btn-sm" onclick="document.getElementById('import-file').click()" style="font-size:11px;">&#128228; Import</button>
+    <input type="file" id="import-file" accept=".json" class="hidden" onchange="importData(event)">
+    <button onclick="openGhSettings()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:11px;">&#9881; GitHub</button>
+    <button onclick="logout()" style="background:rgba(192,0,0,0.5);border:1px solid rgba(255,100,100,0.4);color:#fff;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:11px;">&#128275; Logout</button>
+  </div>
+</div>
+
+<!-- DATE BAR -->
+<div class="date-bar">
+  <label>&#128197; Date:</label>
+  <input type="date" id="selected-date" onchange="onDateChange()">
+  <div class="date-nav">
+    <button onclick="changeDate(-1)">&#8592; Prev Day</button>
+    <button onclick="setToday()" style="background:#1F3864;color:#fff;border-color:#1F3864;">Today</button>
+    <button onclick="changeDate(1)">Next Day &#8594;</button>
+  </div>
+  <div class="date-info" id="date-info">Loading...</div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="showTab('daily')">&#9998; Daily Entry</button>
+  <button class="tab" onclick="showTab('wallet')">&#128184; Wallet & Withdrawals</button>
+  <button class="tab" onclick="showTab('ledger')">&#128203; Full Ledger</button>
+  <button class="tab" onclick="showTab('dashboard')">&#128202; Dashboard</button>
+  <button class="tab" onclick="showTab('accounts')" style="margin-left:auto;border-color:#5B2C6F;color:#5B2C6F;">&#43; Accounts</button>
+  <button class="tab" onclick="showTab('history')" style="border-color:#5B2C6F;color:#5B2C6F;">&#128203; History</button>
+</div>
+
+<!-- ALERT -->
+<div id="main-alert" class="alert al-info hidden"></div>
+
+<!-- TAB: DAILY ENTRY -->
+<div id="tab-daily">
+  <div class="card">
+    <div class="card-header ch-red">
+      <span>&#9998; Daily Profit Entry — <span id="entry-date-label"></span></span>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);" onclick="saveEntry()">&#128190; Save Entry</button>
+    </div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-box" style="background:#FFFDE7;border:1.5px solid #FFC107;"></div> Yellow = Profit enter karo</div>
+      <div class="leg-item"><div class="leg-box" style="background:#F1F8E9;border:1px solid #A5D6A7;"></div> Green = Auto calculatedd</div>
+      <div class="leg-item"><span style="color:#888;font-size:11px;">Leave 0 if no trade on this day</span></div>
+    </div>
+    <div style="overflow-x:auto;">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th style="width:20%;text-align:left;padding-left:10px;"># Client</th>
+          <th style="width:10%;">MT5</th>
+          <th style="width:8%;">Type</th>
+          <th class="th-y" style="width:14%;">&#9660; Profit (Raw)</th>
+          <th style="width:11%;">Profit USD</th>
+          <th style="width:10%;">Fee (50%)</th>
+          <th style="width:10%;">MT5 Pending</th>
+          <th style="width:17%;">Status</th>
+        </tr>
+      </thead>
+      <tbody id="entry-body"></tbody>
+    </table>
+    </div>
+    <div class="divider"></div>
+    <div class="footer-bar">
+      <div>
+        <div class="hint">&#128181; Total fee for this date: <strong id="total-fee" style="color:#375623;">$0.00</strong></div>
+        <div class="hint">&#9989; Ready for transfer: <strong id="total-ready" style="color:#C00000;">0</strong> accounts</div>
+      </div>
+      <button class="btn btn-green" onclick="saveEntry()">&#128190; Save Today's Entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: WALLET & WITHDRAWALS -->
+<div id="tab-wallet" class="hidden">
+
+  <!-- Account List Table -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-header ch-navy">
+      <span>&#128184; Wallet & MT5 Balance — All Accounts</span>
+      <span style="font-size:11px;font-weight:400;opacity:0.8;">Min MT5→Wallet: $1 &nbsp;|&nbsp; Min Withdrawal: $15</span>
+    </div>
+    <div style="overflow-x:auto;">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding-left:12px;width:22%;">Client Name</th>
+          <th style="width:10%;">MT5 Login</th>
+          <th style="width:8%;">Type</th>
+          <th style="width:13%;text-align:right;padding-right:10px;">MT5 Pending</th>
+          <th style="width:10%;">MT5 Status</th>
+          <th style="width:13%;text-align:right;padding-right:10px;">Wallet Balance</th>
+          <th style="width:12%;">Wallet Status</th>
+          <th style="width:12%;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="wallet-list-body"></tbody>
+    </table>
+    </div>
+    <div style="padding:10px 14px;background:#f8faff;border-top:1px solid #eee;display:flex;gap:20px;flex-wrap:wrap;">
+      <span style="font-size:12px;color:#666;">Total MT5 Pending: <strong id="wl-total-mt5" style="color:#e67e00;">$0.00</strong></span>
+      <span style="font-size:12px;color:#666;">Total Wallet Balance: <strong id="wl-total-wal" style="color:#375623;">$0.00</strong></span>
+      <span style="font-size:12px;color:#666;">Ready for Transfer: <strong id="wl-ready-tr" style="color:#2E75B6;">0</strong></span>
+      <span style="font-size:12px;color:#666;">Ready for Withdrawal: <strong id="wl-ready-wd" style="color:#375623;">0</strong></span>
+    </div>
+  </div>
+
+  <!-- History Toggle -->
+  <div class="card">
+    <div class="card-header ch-navy" style="padding:0;">
+      <button class="hist-tab active" id="htab-mt5" onclick="switchHistTab('mt5')">&#128257; MT5 &#8594; Wallet History</button>
+      <button class="hist-tab" id="htab-wd" onclick="switchHistTab('wd')">&#128184; Withdrawal History</button>
+    </div>
+
+    <!-- MT5 to Wallet History -->
+    <div id="hist-mt5">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding-left:12px;">Date</th>
+            <th style="text-align:left;">Client</th>
+            <th>MT5 Login</th>
+            <th style="text-align:right;padding-right:10px;">Amount Transferred</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody id="mt5-hist-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Withdrawal History -->
+    <div id="hist-wd" class="hidden">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding-left:12px;">Date</th>
+            <th style="text-align:left;">Client</th>
+            <th>MT5 Login</th>
+            <th style="text-align:right;padding-right:10px;">Withdrawn Amount</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="wd-history"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- TAB: LEDGER -->
+<div id="tab-ledger" class="hidden">
+  <div class="card">
+    <div class="card-header ch-navy">
+      <span>&#128203; Full Ledger — Complete History</span>
+      <select id="ledger-filter" onchange="renderLedger()" style="padding:4px 8px;border-radius:5px;border:none;font-size:12px;">
+        <option value="">All Accounts</option>
+      </select>
+    </div>
+    <table class="tbl">
+      <thead>
+        <tr><th style="text-align:left;padding-left:10px;">Date</th><th>MT5</th><th style="text-align:left;">Client</th><th>Type</th><th style="text-align:right;padding-right:10px;">Amount</th><th>Note</th></tr>
+      </thead>
+      <tbody id="ledger-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB: DASHBOARD -->
+<div id="tab-dashboard" class="hidden">
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-header ch-navy">&#128202; Overall Summary</div>
+    <div class="kpi-grid" id="kpi-grid"></div>
+  </div>
+  <div class="card">
+    <div class="card-header ch-green">&#128203; Per Account Quick View</div>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding-left:10px;">Client</th>
+          <th>MT5</th><th>Type</th>
+          <th style="text-align:right;">MT5 Pending</th>
+          <th style="text-align:right;">Wallet Balance</th>
+          <th>MT5 Status</th><th>Wallet Status</th>
+        </tr>
+      </thead>
+      <tbody id="dash-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB: ACCOUNTS -->
+<div id="tab-accounts" class="hidden">
+  <div class="card">
+    <div class="card-header ch-purple">
+      <span>&#128100; MT5 Accounts — Add / Edit</span>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);" onclick="openAddAccount()">&#43; New Account</button>
+    </div>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding-left:10px;">Client Name</th>
+          <th>MT5 Login</th><th>Account Type</th><th>Skyriss Email</th><th>CRM Password</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="accounts-body"></tbody>
+    </table>
+    <div class="footer-bar">
+      <div class="hint">Total accounts: <strong id="acc-count">0</strong></div>
+      <button class="btn btn-blue btn-sm" onclick="openAddAccount()">&#43; Add New Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: HISTORY -->
+<div id="tab-history" class="hidden">
+  <div class="card">
+    <div class="card-header ch-navy" style="padding:0;flex-wrap:wrap;">
+      <button class="hist-tab active" id="htab2-mt5" onclick="switchHistTab2('mt5')">&#128257; MT5 &#8594; Wallet History</button>
+      <button class="hist-tab" id="htab2-wd" onclick="switchHistTab2('wd')">&#128184; Withdrawal History</button>
+    </div>
+
+    <!-- Filters -->
+    <div style="padding:12px 16px;background:#f8faff;border-bottom:1px solid #eee;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <label style="font-size:12px;font-weight:700;color:#1F3864;">From:</label>
+        <input type="date" id="hist-date-from" style="padding:5px 8px;border:1px solid #ccc;border-radius:6px;font-size:12px;" onchange="renderHistoryPage()">
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <label style="font-size:12px;font-weight:700;color:#1F3864;">To:</label>
+        <input type="date" id="hist-date-to" style="padding:5px 8px;border:1px solid #ccc;border-radius:6px;font-size:12px;" onchange="renderHistoryPage()">
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <label style="font-size:12px;font-weight:700;color:#1F3864;">Account:</label>
+        <select id="hist-account-filter" style="padding:5px 8px;border:1px solid #ccc;border-radius:6px;font-size:12px;" onchange="renderHistoryPage()">
+          <option value="">All Accounts</option>
+        </select>
+      </div>
+      <button onclick="clearHistFilters()" style="padding:5px 12px;border:1px solid #ccc;border-radius:6px;font-size:12px;background:#fff;cursor:pointer;color:#555;">&#10006; Clear Filters</button>
+      <span style="margin-left:auto;font-size:12px;color:#666;">Showing: <strong id="hist-count">0</strong> records</span>
+    </div>
+
+    <!-- MT5 History Table -->
+    <div id="hist2-mt5">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding-left:12px;">Date</th>
+            <th style="text-align:left;">Client</th>
+            <th>MT5 Login</th>
+            <th>Account Type</th>
+            <th style="text-align:right;padding-right:12px;">Amount Transferred</th>
+            <th style="text-align:left;">Note</th>
+          </tr>
+        </thead>
+        <tbody id="hist2-mt5-body"></tbody>
+      </table>
+      <div style="padding:10px 16px;background:#f8faff;border-top:1px solid #eee;text-align:right;">
+        <span style="font-size:12px;color:#666;">Total: <strong id="hist2-mt5-total" style="color:#2E75B6;">$0.00</strong></span>
+      </div>
+    </div>
+
+    <!-- Withdrawal History Table -->
+    <div id="hist2-wd" class="hidden">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding-left:12px;">Date</th>
+            <th style="text-align:left;">Client</th>
+            <th>MT5 Login</th>
+            <th>Account Type</th>
+            <th style="text-align:right;padding-right:12px;">Withdrawn Amount</th>
+            <th style="text-align:left;">Notes</th>
+          </tr>
+        </thead>
+        <tbody id="hist2-wd-body"></tbody>
+      </table>
+      <div style="padding:10px 16px;background:#f8faff;border-top:1px solid #eee;text-align:right;">
+        <span style="font-size:12px;color:#666;">Total: <strong id="hist2-wd-total" style="color:#C00000;">$0.00</strong></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end .app -->
+
+<!-- MODAL: Add/Edit Account -->
+<div class="overlay hidden" id="acc-modal">
+  <div class="modal">
+    <h3 id="acc-modal-title">+ New MT5 Account</h3>
+    <input type="hidden" id="acc-edit-idx" value="-1">
+    <div class="form-row">
+      <label>Client Name *</label>
+      <input type="text" id="acc-name" placeholder="e.g. Mehmood Iqbal">
+    </div>
+    <div class="form-row">
+      <label>MT5 Login * (unique)</label>
+      <input type="text" id="acc-login" placeholder="e.g. 17258">
+    </div>
+    <div class="form-row">
+      <label>Account Type *</label>
+      <select id="acc-type">
+        <option value="Cent">Cent</option>
+        <option value="USD">USD</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Status</label>
+      <select id="acc-status">
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Skyriss Email</label>
+      <input type="email" id="acc-email" placeholder="e.g. trendify.team02+xxx@gmail.com">
+    </div>
+    <div class="form-row">
+      <label>CRM Password</label>
+      <input type="text" id="acc-crmpass" placeholder="e.g. Password#123">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-blue" onclick="saveAccount()" style="flex:1;">&#10003; Save Account</button>
+      <button class="btn btn-outline" onclick="closeModal('acc-modal')">Cancel</button>
+    </div>
+    <div id="acc-error" style="margin-top:8px;font-size:12px;color:#b71c1c;"></div>
+  </div>
+</div>
+
+<!-- MODAL: Withdrawal -->
+<div class="overlay hidden" id="wd-modal">
+  <div class="modal">
+    <h3>&#128184; Wallet Withdrawal</h3>
+    <div style="background:#f0f3f8;border-radius:8px;padding:12px;margin-bottom:14px;">
+      <div style="font-size:12px;color:#666;">Client</div>
+      <div style="font-size:15px;font-weight:700;color:#1F3864;" id="wd-client-name">—</div>
+      <div style="font-size:12px;color:#888;font-family:monospace;" id="wd-client-login">—</div>
+      <div style="margin-top:8px;font-size:12px;color:#666;">Wallet Balance (Available)</div>
+      <div style="font-size:22px;font-weight:700;color:#375623;" id="wd-available">$0.00</div>
+    </div>
+    <div class="cred-card" id="wd-cred-card">
+      <div class="cred-title">&#128274; Login Details — For Staff</div>
+      <div class="cred-row">
+        <span class="cred-label">Skyriss Email</span>
+        <span class="cred-value" id="wd-cred-email">—</span>
+        <button class="copy-btn" onclick="copyCredField('wd-cred-email',this)">&#128203; Copy</button>
+      </div>
+      <div class="cred-row">
+        <span class="cred-label">CRM Password</span>
+        <span class="cred-value" id="wd-cred-pass">—</span>
+        <button class="copy-btn" onclick="copyCredField('wd-cred-pass',this)">&#128203; Copy</button>
+      </div>
+    </div>
+    <input type="hidden" id="wd-login-hidden">
+    <div class="form-row">
+      <label>Withdrawal Amount (USD) *</label>
+      <input type="number" id="wd-amount" placeholder="e.g. 15.00" step="0.01" min="0.01">
+    </div>
+    <div class="form-row">
+      <label>Notes (optional)</label>
+      <input type="text" id="wd-notes" placeholder="e.g. HBL account mein transfer kiya">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-green" onclick="confirmWithdrawal()" style="flex:1;">&#10003; Confirm Withdrawal</button>
+      <button class="btn btn-outline" onclick="closeModal('wd-modal')">Cancel</button>
+    </div>
+    <div id="wd-error" style="margin-top:8px;font-size:12px;color:#b71c1c;"></div>
+  </div>
+</div>
+
+<!-- MODAL: MT5 Transfer -->
+<div class="overlay hidden" id="tr-modal">
+  <div class="modal">
+    <h3>&#128257; MT5 &#8594; Wallet Transfer</h3>
+    <div style="background:#f0f3f8;border-radius:8px;padding:12px;margin-bottom:14px;">
+      <div style="font-size:12px;color:#666;">Client</div>
+      <div style="font-size:15px;font-weight:700;color:#1F3864;" id="tr-client-name">—</div>
+      <div style="font-size:12px;color:#888;font-family:monospace;" id="tr-client-login">—</div>
+      <div style="margin-top:8px;font-size:12px;color:#666;">MT5 Pending Amount</div>
+      <div style="font-size:22px;font-weight:700;color:#C00000;" id="tr-pending">$0.00</div>
+    </div>
+    <div class="cred-card" id="tr-cred-card">
+      <div class="cred-title">&#128274; Login Details — For Staff</div>
+      <div class="cred-row">
+        <span class="cred-label">Skyriss Email</span>
+        <span class="cred-value" id="tr-cred-email">—</span>
+        <button class="copy-btn" onclick="copyCredField('tr-cred-email',this)">&#128203; Copy</button>
+      </div>
+      <div class="cred-row">
+        <span class="cred-label">CRM Password</span>
+        <span class="cred-value" id="tr-cred-pass">—</span>
+        <button class="copy-btn" onclick="copyCredField('tr-cred-pass',this)">&#128203; Copy</button>
+      </div>
+    </div>
+    <input type="hidden" id="tr-login-hidden">
+    <div class="form-row">
+      <label>Amount to Transfer (USD)</label>
+      <input type="number" id="tr-amount" step="0.01">
+    </div>
+    <div class="form-row">
+      <label>Transfer Date</label>
+      <input type="date" id="tr-date">
+    </div>
+    <div class="form-row">
+      <label>Notes</label>
+      <input type="text" id="tr-notes" placeholder="Optional">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-blue" onclick="confirmTransfer()" style="flex:1;">&#10003; Confirm & Record Transfer</button>
+      <button class="btn btn-outline" onclick="closeModal('tr-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// LOGIN / AUTH
+// ═══════════════════════════════════════════════════════
+// Passwords list — add/remove as needed
+// To change: update this array and re-upload index.html
+const PASSWORDS = [
+  'BIS@Staff2026',   // Main staff password
+  'BISAdmin#99',     // Admin password
+];
+
+const SESSION_KEY = 'bis_session';
+const MAX_ATTEMPTS = 5;
+let loginAttempts = parseInt(sessionStorage.getItem('bis_attempts')||'0');
+let lockUntil     = parseInt(sessionStorage.getItem('bis_lock')||'0');
+
+function checkLogin(){
+  const now = Date.now();
+  const errEl = document.getElementById('login-error');
+  const attEl = document.getElementById('login-attempts');
+
+  // Check lockout
+  if(lockUntil > now){
+    const secs = Math.ceil((lockUntil - now)/1000);
+    errEl.textContent = `Too many attempts. Try again in ${secs}s`;
+    return;
+  }
+
+  const entered = document.getElementById('login-pass').value;
+  if(PASSWORDS.includes(entered)){
+    // Success
+    sessionStorage.setItem(SESSION_KEY, 'ok');
+    sessionStorage.setItem('bis_attempts','0');
+    sessionStorage.removeItem('bis_lock');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-app').style.display = 'block';
+    initApp();
+  } else {
+    loginAttempts++;
+    sessionStorage.setItem('bis_attempts', loginAttempts);
+    const remaining = MAX_ATTEMPTS - loginAttempts;
+    if(loginAttempts >= MAX_ATTEMPTS){
+      const lockTime = Date.now() + 60000; // 1 minute lockout
+      sessionStorage.setItem('bis_lock', lockTime);
+      lockUntil = lockTime;
+      loginAttempts = 0;
+      sessionStorage.setItem('bis_attempts','0');
+      errEl.textContent = 'Too many attempts. Locked for 60 seconds.';
+    } else {
+      errEl.textContent = `Incorrect password. ${remaining} attempt${remaining===1?'':'s'} remaining.`;
+    }
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-pass').focus();
+    if(remaining > 0) attEl.textContent = '';
+  }
+}
+
+function checkSession(){
+  // Check if already logged in this browser session
+  if(sessionStorage.getItem(SESSION_KEY) === 'ok'){
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-app').style.display = 'block';
+    return true;
+  }
+  return false;
+}
+
+function logout(){
+  sessionStorage.removeItem(SESSION_KEY);
+  location.reload();
+}
+
+// ═══════════════════════════════════════════════════════
+// GITHUB CONFIG
+// ═══════════════════════════════════════════════════════
+let ghCfg = JSON.parse(localStorage.getItem('bis_gh_cfg') || 'null') || {user:'',repo:'',token:'',branch:'main'};
+let ghDataSha = '';
+
+function ghSaveConfig(){
+  const user   = document.getElementById('gh-user').value.trim();
+  const repo   = document.getElementById('gh-repo').value.trim();
+  const token  = document.getElementById('gh-token').value.trim();
+  const branch = document.getElementById('gh-branch').value.trim() || 'main';
+  const errEl  = document.getElementById('gh-error');
+  if(!user||!repo||!token){ errEl.textContent='All fields are required.'; return; }
+  ghCfg = {user,repo,token,branch};
+  localStorage.setItem('bis_gh_cfg', JSON.stringify(ghCfg));
+  document.getElementById('gh-modal').classList.add('hidden');
+  ghLoad();
+}
+function ghSkip(){
+  document.getElementById('gh-modal').classList.add('hidden');
+  setSyncBadge('local','&#10003; Local only');
+}
+function openGhSettings(){
+  document.getElementById('gh-user').value   = ghCfg.user||'';
+  document.getElementById('gh-repo').value   = ghCfg.repo||'';
+  document.getElementById('gh-token').value  = ghCfg.token||'';
+  document.getElementById('gh-branch').value = ghCfg.branch||'main';
+  document.getElementById('gh-error').textContent = '';
+  document.getElementById('gh-skip-btn').style.display = 'inline-flex';
+  document.getElementById('gh-modal').classList.remove('hidden');
+}
+function setSyncBadge(type, text){
+  const el = document.getElementById('sync-badge');
+  el.innerHTML = text;
+  el.className = type==='ok' ? 'sync-ok' : type==='err' ? 'sync-err' : type==='ing' ? 'sync-ing' : 'sync-ok';
+  el.style.cssText = 'font-size:11px;padding:5px 10px;border-radius:6px;font-weight:600;';
+}
+
+async function ghLoad(){
+  if(!ghCfg.user||!ghCfg.repo||!ghCfg.token){ return; }
+  setSyncBadge('ing','&#8635; Loading...');
+  try{
+    const url = `https://api.github.com/repos/${ghCfg.user}/${ghCfg.repo}/contents/data.json?ref=${ghCfg.branch}&t=${Date.now()}`;
+    const res = await fetch(url,{headers:{Authorization:`token ${ghCfg.token}`,Accept:'application/vnd.github.v3+json'}});
+    if(res.status===404){
+      // First time — create the file
+      await ghSave();
+      setSyncBadge('ok','&#10003; GitHub Connected');
+      return;
+    }
+    if(!res.ok) throw new Error('GitHub error '+res.status);
+    const json = await res.json();
+    ghDataSha = json.sha;
+    const data = JSON.parse(atob(json.content.replace(/\n/g,'')));
+    if(data.accounts && data.accounts.length) accounts  = data.accounts;
+    if(data.ledger)    ledger    = data.ledger;
+    if(data.walletLog) walletLog = data.walletLog;
+    // Persist locally as backup
+    localStorage.setItem('bis_accounts', JSON.stringify(accounts));
+    localStorage.setItem('bis_ledger',   JSON.stringify(ledger));
+    localStorage.setItem('bis_wallet',   JSON.stringify(walletLog));
+    setSyncBadge('ok','&#10003; GitHub Synced');
+    renderEntry(); renderWallet(); renderAccounts();
+  } catch(e){
+    setSyncBadge('err','&#9888; '+e.message);
+    console.error('GitHub load error:',e);
+  }
+}
+
+async function ghSave(){
+  if(!ghCfg.user||!ghCfg.repo||!ghCfg.token){ return; }
+  const data = {accounts, ledger, walletLog, updatedAt: new Date().toISOString()};
+  const body = {
+    message: `Update ${new Date().toISOString().split('T')[0]}`,
+    content: btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2)))),
+    branch: ghCfg.branch
+  };
+  if(ghDataSha) body.sha = ghDataSha;
+  const res = await fetch(`https://api.github.com/repos/${ghCfg.user}/${ghCfg.repo}/contents/data.json`,{
+    method:'PUT',
+    headers:{Authorization:`token ${ghCfg.token}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  if(!res.ok){ const e=await res.json(); throw new Error(e.message||'Save failed'); }
+  const r = await res.json();
+  ghDataSha = r.content.sha;
+}
+
+async function persistAndSync(){
+  // Always save locally first
+  localStorage.setItem('bis_accounts', JSON.stringify(accounts));
+  localStorage.setItem('bis_ledger',   JSON.stringify(ledger));
+  localStorage.setItem('bis_wallet',   JSON.stringify(walletLog));
+  // Then sync to GitHub if configured
+  if(!ghCfg.user||!ghCfg.repo||!ghCfg.token) return;
+  setSyncBadge('ing','&#8635; Saving...');
+  try{
+    await ghSave();
+    setSyncBadge('ok','&#10003; Saved to GitHub');
+  } catch(e){
+    setSyncBadge('err','&#9888; Local only — '+e.message);
+    console.error('GitHub save error:',e);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// DATA STORE
+// ═══════════════════════════════════════════════════════
+const FEE=0.5, CENT=100, MIN_MT5=1, MIN_WD=15;
+
+let accounts = JSON.parse(localStorage.getItem('bis_accounts') || 'null') || [
+  {name:"Mehmood Iqbal",       login:"17258", type:"USD",  status:"Active", skyrissEmail:"trendify.team02+1011@gmail.com", crmPass:"Password#123"},
+  {name:"Awais Gulzar",        login:"18974", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+516@gmail.com",  crmPass:"Awais@786"},
+  {name:"Ghulam Fakhar",       login:"18586", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+475@gmail.com",  crmPass:"Fakhar@6062"},
+  {name:"Muhammad Asif",       login:"18580", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+472@gmail.com",  crmPass:"Asif@786"},
+  {name:"Hassam Mehmood",      login:"19103", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+533@gmail.com",  crmPass:"SkillLeo@571"},
+  {name:"Muhammad Saleem",     login:"19477", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+581@gmail.com",  crmPass:"Saleem@1985"},
+  {name:"Malik M. Naeem",      login:"19448", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+568@gmail.com",  crmPass:"Naeem@1970"},
+  {name:"Fakhar Abbas Nasir",  login:"18582", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+473@gmail.com",  crmPass:"Abbas@2401"},
+  {name:"Ahmad Ali Nawaz",     login:"17553", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+1028@gmail.com", crmPass:"Password#123"},
+  {name:"Muhammad Tayyab",     login:"18642", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+485@gmail.com",  crmPass:"Tayyab@937"},
+  {name:"Asifa Naheed",        login:"19239", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+389@gmail.com",  crmPass:"Password#123"},
+  {name:"Zulfiqar Haider",     login:"19578", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+597@gmail.com",  crmPass:"Haider@12"},
+  {name:"Mariyam Bibi",        login:"19671", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+442@gmail.com",  crmPass:"Sana@0000"},
+  {name:"Muhammad Tayyab 2",   login:"19809", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+485@gmail.com",  crmPass:"Tayyab@937"},
+  {name:"Shiza Abdul Razzaq",  login:"19961", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+628@gmail.com",  crmPass:"Shiza@321"},
+  {name:"Shahzad Hussain",     login:"18926", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+511@gmail.com",  crmPass:"Ppakistan@1976"},
+  {name:"Rabia Bibi",          login:"20067", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+636@gmail.com",  crmPass:"Umar14526$"},
+  {name:"Rabia Bibi 2",        login:"20070", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+638@gmail.com",  crmPass:"Rabia10101$"},
+  {name:"Shakeel Ahmed",       login:"20196", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+646@gmail.com",  crmPass:"Khan7080@"},
+  {name:"Sultan Afsar",        login:"19354", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+546@gmail.com",  crmPass:"Khan7589@"},
+  {name:"Sajjad Haider",       login:"20195", type:"Cent", status:"Active", skyrissEmail:"trendify.team02+645@gmail.com",  crmPass:"Sajjad.123"},
+];
+
+let ledger     = JSON.parse(localStorage.getItem('bis_ledger')  || '[]');
+let walletLog  = JSON.parse(localStorage.getItem('bis_wallet')  || '[]');
+let selectedDate = getToday();
+
+function persist(){
+  localStorage.setItem('bis_accounts', JSON.stringify(accounts));
+  localStorage.setItem('bis_ledger',   JSON.stringify(ledger));
+  localStorage.setItem('bis_wallet',   JSON.stringify(walletLog));
+}
+// persistAndSync defined above in GitHub section
+
+// ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+function getToday(){ return new Date().toISOString().split('T')[0]; }
+function fmtDate(d){
+  try{ return new Date(d+'T00:00:00').toLocaleDateString('en-PK',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}); }
+  catch(e){ return d; }
+}
+function fmt$(n){ return '$'+parseFloat(n||0).toFixed(2); }
+
+function getMT5Pending(login){
+  const fees = ledger.filter(r=>r.login===login&&r.type==='fee').reduce((s,r)=>s+r.amount,0);
+  const tr   = ledger.filter(r=>r.login===login&&r.type==='transfer').reduce((s,r)=>s+r.amount,0);
+  return Math.max(0, parseFloat((fees-tr).toFixed(4)));
+}
+function getWalletBal(login){
+  const tr = ledger.filter(r=>r.login===login&&r.type==='transfer').reduce((s,r)=>s+r.amount,0);
+  const wd = walletLog.filter(r=>r.login===login).reduce((s,r)=>s+r.amount,0);
+  return Math.max(0, parseFloat((tr-wd).toFixed(4)));
+}
+function activeAccounts(){ return accounts.filter(a=>a.status==='Active'); }
+
+function showAlert(msg, type='info', duration=4000){
+  const el = document.getElementById('main-alert');
+  el.className = 'alert al-'+type;
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  if(duration) setTimeout(()=>el.classList.add('hidden'), duration);
+}
+
+// ═══════════════════════════════════════════════════════
+// DATE BAR
+// ═══════════════════════════════════════════════════════
+function initDateBar(){
+  const inp = document.getElementById('selected-date');
+  inp.value = selectedDate;
+  updateDateInfo();
+}
+function onDateChange(){
+  selectedDate = document.getElementById('selected-date').value;
+  updateDateInfo();
+  renderEntry();
+}
+function setToday(){
+  selectedDate = getToday();
+  document.getElementById('selected-date').value = selectedDate;
+  updateDateInfo();
+  renderEntry();
+}
+function changeDate(delta){
+  const d = new Date(selectedDate+'T00:00:00');
+  d.setDate(d.getDate()+delta);
+  selectedDate = d.toISOString().split('T')[0];
+  document.getElementById('selected-date').value = selectedDate;
+  updateDateInfo();
+  renderEntry();
+}
+function updateDateInfo(){
+  const today = getToday();
+  const el = document.getElementById('date-info');
+  const saved = ledger.filter(r=>r.date===selectedDate&&r.type==='fee');
+  let info = fmtDate(selectedDate);
+  if(selectedDate === today) info += ' (Today)';
+  else if(selectedDate < today) info += ' (Past)';
+  else info += ' (Future)';
+  if(saved.length>0) info += ` — ${saved.length} entries saved`;
+  el.textContent = info;
+}
+
+// ═══════════════════════════════════════════════════════
+// DAILY ENTRY
+// ═══════════════════════════════════════════════════════
+function renderEntry(){
+  document.getElementById('entry-date-label').textContent = fmtDate(selectedDate);
+  updateDateInfo();
+  const body = document.getElementById('entry-body');
+  const accs = activeAccounts();
+  let totalFee=0, readyCount=0;
+
+  body.innerHTML = accs.map((acc,i)=>{
+    const saved = ledger.find(r=>r.date===selectedDate&&r.login===acc.login&&r.type==='fee');
+    const pending = getMT5Pending(acc.login);
+    const typeTag = acc.type==='USD'
+      ? '<span class="tag-usd">USD</span>'
+      : '<span class="tag-cent">Cent</span>';
+
+    let inputHTML, pusd=0, fee=0, statusHTML, actionHTML;
+
+    if(saved){
+      pusd = saved.profitUSD; fee = saved.amount; totalFee += fee;
+      inputHTML = `<input class="inp" type="number" value="${saved.rawProfit}" disabled>`;
+      if(pending >= MIN_MT5){
+        statusHTML = `<span class="st-ready">&#9989; READY &mdash; ${fmt$(pending)}</span>`; readyCount++;
+        actionHTML = '—';
+      } else {
+        statusHTML = `<span class="st-wait">${pending>0?'Collecting: '+fmt$(pending):'—'}</span>`;
+        actionHTML = '—';
+      }
+    } else {
+      inputHTML = `<input class="inp" type="number" id="p-${acc.login}" placeholder="0.00" step="0.01" oninput="liveCalc('${acc.login}','${acc.type}',this.value)">`;
+      if(pending >= MIN_MT5){
+        statusHTML = `<span class="st-ready">&#9989; READY &mdash; ${fmt$(pending)}</span>`; readyCount++;
+        actionHTML = '—';
+      } else {
+        statusHTML = `<span class="st-wait">${pending>0?'Collecting: '+fmt$(pending):'—'}</span>`;
+        actionHTML = '—';
+      }
+    }
+
+    const rowBg = i%2===0 ? '' : 'style="background:#fafbff;"';
+    return `<tr ${rowBg}>
+      <td class="td-left">${i+1}. ${acc.name}</td>
+      <td style="font-family:monospace;color:#2E75B6;font-weight:700;">${acc.login}</td>
+      <td>${typeTag}</td>
+      <td>${inputHTML}</td>
+      <td class="calc-td" id="pusd-${acc.login}">${saved?fmt$(pusd):'—'}</td>
+      <td class="calc-td" id="fee-${acc.login}">${saved?fmt$(fee):'—'}</td>
+      <td style="font-weight:700;color:#1F3864;" id="pend-${acc.login}">${fmt$(pending)}</td>
+      <td id="st-${acc.login}">${statusHTML}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('total-fee').textContent = fmt$(totalFee);
+  document.getElementById('total-ready').textContent = readyCount;
+}
+
+function liveCalc(login, type, val){
+  const raw = parseFloat(val)||0;
+  const profitUSD = raw<=0 ? 0 : (type==='Cent' ? raw/CENT : raw);
+  const fee = profitUSD * FEE;
+  const prevPending = getMT5Pending(login);
+  const total = prevPending + fee;
+  const acc = accounts.find(a=>a.login===login);
+
+  const elP = document.getElementById('pusd-'+login);
+  const elF = document.getElementById('fee-'+login);
+  const elSt = document.getElementById('st-'+login);
+  const elAc = document.getElementById('ac-'+login);
+
+  if(elP) elP.textContent = raw>0 ? fmt$(profitUSD) : '—';
+  if(elF) elF.textContent = raw>0 ? fmt$(fee) : '—';
+
+  if(elSt){
+    if(total >= MIN_MT5){
+      elSt.innerHTML = `<span class="st-ready">&#9989; READY &mdash; ${fmt$(total)}</span>`;
+    } else {
+      elSt.innerHTML = `<span class="st-wait">${total>0?'Collecting: '+fmt$(total):'—'}</span>`;
+    }
+    if(elAc) elAc.innerHTML = '—';
+  }
+
+  // Recalculate totals
+  let tf=0, rc=0;
+  activeAccounts().forEach(a=>{
+    const f=document.getElementById('fee-'+a.login);
+    if(f&&f.textContent!=='—') tf+=parseFloat(f.textContent.replace('$',''))||0;
+    const s=document.getElementById('st-'+a.login);
+    if(s&&s.innerHTML.includes('READY')) rc++;
+  });
+  document.getElementById('total-fee').textContent = fmt$(tf);
+  document.getElementById('total-ready').textContent = rc;
+}
+
+function saveEntry(){
+  const accs = activeAccounts();
+  let count = 0;
+  accs.forEach(acc=>{
+    const inp = document.getElementById('p-'+acc.login);
+    if(!inp||inp.disabled) return;
+    const raw = parseFloat(inp.value)||0;
+    if(raw <= 0) return;
+    // Remove existing entry for this date+login if any (overwrite)
+    const idx = ledger.findIndex(r=>r.date===selectedDate&&r.login===acc.login&&r.type==='fee');
+    if(idx>=0) ledger.splice(idx,1);
+    const profitUSD = acc.type==='Cent' ? raw/CENT : raw;
+    const fee = parseFloat((profitUSD*FEE).toFixed(4));
+    ledger.push({date:selectedDate, login:acc.login, name:acc.name, type:'fee',
+      rawProfit:raw, profitUSD:parseFloat(profitUSD.toFixed(4)), amount:fee});
+    count++;
+  });
+
+  if(count===0){ showAlert('No profit entered — please fill in the yellow boxes first.','warn'); return; }
+  persistAndSync();
+  showAlert(`✅ ${count} account entries saved (${fmtDate(selectedDate)})`, 'ok');
+  renderEntry();
+  renderWallet();
+}
+
+// ═══════════════════════════════════════════════════════
+// TRANSFER MODAL
+// ═══════════════════════════════════════════════════════
+function openTransfer(login, name){
+  const pending = getMT5Pending(login);
+  document.getElementById('tr-client-name').textContent = name;
+  document.getElementById('tr-client-login').textContent = login;
+  document.getElementById('tr-pending').textContent = fmt$(pending);
+  document.getElementById('tr-login-hidden').value = login;
+  document.getElementById('tr-amount').value = pending.toFixed(2);
+  document.getElementById('tr-date').value = selectedDate;
+  document.getElementById('tr-notes').value = '';
+  // Fill login credentials
+  const accData = accounts.find(a=>a.login===login);
+  document.getElementById('tr-cred-email').textContent = accData&&accData.skyrissEmail ? accData.skyrissEmail : '(not set)';
+  document.getElementById('tr-cred-pass').textContent  = accData&&accData.crmPass      ? accData.crmPass      : '(not set)';
+  document.getElementById('tr-modal').classList.remove('hidden');
+}
+function confirmTransfer(){
+  const login = document.getElementById('tr-login-hidden').value;
+  const amount = parseFloat(document.getElementById('tr-amount').value)||0;
+  const date = document.getElementById('tr-date').value || selectedDate;
+  const notes = document.getElementById('tr-notes').value.trim();
+  const acc = accounts.find(a=>a.login===login);
+  if(amount<=0){ alert('Please enter an amount.'); return; }
+  ledger.push({date, login, name:acc?acc.name:login, type:'transfer', amount:parseFloat(amount.toFixed(2)), note:'MT5→Wallet'+(notes?' — '+notes:'')});
+  persistAndSync();
+  closeModal('tr-modal');
+  showAlert(`✅ Transfer recorded — ${acc?acc.name:login}: ${fmt$(amount)}`, 'ok');
+  renderEntry();
+  renderWallet();
+}
+
+// ═══════════════════════════════════════════════════════
+// WALLET & WITHDRAWALS
+// ═══════════════════════════════════════════════════════
+function renderWallet(){
+  const tbody = document.getElementById('wallet-list-body');
+  let totalMt5=0, totalWal=0, readyTr=0, readyWd=0;
+  let rows = '';
+
+  // Sort: accounts with actions (READY) on top, rest below
+  const sortedAccs = [...accounts].sort((a,b)=>{
+    const aMt5 = getMT5Pending(a.login); const aWal = getWalletBal(a.login);
+    const bMt5 = getMT5Pending(b.login); const bWal = getWalletBal(b.login);
+    const aReady = (aMt5>=MIN_MT5 ? 2 : 0) + (aWal>=MIN_WD ? 1 : 0);
+    const bReady = (bMt5>=MIN_MT5 ? 2 : 0) + (bWal>=MIN_WD ? 1 : 0);
+    if(bReady !== aReady) return bReady - aReady;
+    // Secondary: higher amount first
+    return (bMt5+bWal) - (aMt5+aWal);
+  });
+
+  sortedAccs.forEach((acc,i)=>{
+    const mt5  = getMT5Pending(acc.login);
+    const wal  = getWalletBal(acc.login);
+    const totalFees = ledger.filter(r=>r.login===acc.login&&r.type==='fee').reduce((s,r)=>s+r.amount,0);
+    if(totalFees===0 && mt5===0 && wal===0) return;
+
+    totalMt5 += mt5; totalWal += wal;
+    const canTr = mt5 >= MIN_MT5;
+    const canWd = wal >= MIN_WD;
+    if(canTr) readyTr++;
+    if(canWd) readyWd++;
+
+    const mt5StatusHTML = canTr
+      ? `<span class="st-ready">&#9989; READY</span>`
+      : mt5>0
+        ? `<span class="st-wait">Collecting</span>`
+        : `<span style="color:#ccc;font-size:11px;">—</span>`;
+
+    const walStatusHTML = canWd
+      ? `<span class="st-wd-ready">&#9989; READY</span>`
+      : wal>0
+        ? `<span class="st-wait">${fmt$(wal)}/$${MIN_WD}</span>`
+        : `<span style="color:#ccc;font-size:11px;">—</span>`;
+
+    const mt5Color  = canTr ? '#375623' : mt5>0 ? '#e67e00' : '#bbb';
+    const walColor  = canWd ? '#375623' : wal>0  ? '#e67e00' : '#bbb';
+    const rowBg = i%2===0 ? '' : 'style="background:#fafbff;"';
+
+    const trBtn = canTr
+      ? `<button class="btn btn-blue btn-sm" style="margin-right:4px;" onclick="openTransfer('${acc.login}','${acc.name}')">Transfer</button>`
+      : '';
+    const wdBtn = canWd
+      ? `<button class="btn btn-sm" style="background:#375623;color:#fff;border:none;border-radius:5px;padding:4px 10px;font-size:11px;cursor:pointer;" onclick="openWithdrawal('${acc.login}','${acc.name}',${wal})">Withdraw</button>`
+      : '';
+
+    rows += `<tr ${rowBg}>
+      <td class="td-left" style="font-weight:600;">${acc.name}</td>
+      <td style="font-family:monospace;color:#2E75B6;font-weight:700;">${acc.login}</td>
+      <td>${acc.type==='USD'?'<span class="tag-usd">USD</span>':'<span class="tag-cent">Cent</span>'}</td>
+      <td style="text-align:right;padding-right:10px;font-weight:700;color:${mt5Color};">${fmt$(mt5)}</td>
+      <td>${mt5StatusHTML}</td>
+      <td style="text-align:right;padding-right:10px;font-weight:700;color:${walColor};">${fmt$(wal)}</td>
+      <td>${walStatusHTML}</td>
+      <td style="white-space:nowrap;">${trBtn}${wdBtn}</td>
+    </tr>`;
+  });
+
+  tbody.innerHTML = rows || '<tr><td colspan="8" class="empty">No activity yet — save a Daily Entry first</td></tr>';
+  document.getElementById('wl-total-mt5').textContent = fmt$(totalMt5);
+  document.getElementById('wl-total-wal').textContent = fmt$(totalWal);
+  document.getElementById('wl-ready-tr').textContent  = readyTr;
+  document.getElementById('wl-ready-wd').textContent  = readyWd;
+
+  // MT5 → Wallet history
+  const mt5Transfers = ledger.filter(r=>r.type==='transfer');
+  const mt5Body = document.getElementById('mt5-hist-body');
+  if(!mt5Transfers.length){
+    mt5Body.innerHTML='<tr><td colspan="5" class="empty">No MT5→Wallet transfer records yet</td></tr>';
+  } else {
+    mt5Body.innerHTML=[...mt5Transfers].reverse().map(r=>`
+      <tr>
+        <td class="td-left">${fmtDate(r.date)}</td>
+        <td style="font-weight:600;">${r.name}</td>
+        <td style="font-family:monospace;color:#2E75B6;font-weight:700;">${r.login}</td>
+        <td style="text-align:right;padding-right:10px;font-weight:700;color:#2E75B6;">${fmt$(r.amount)}</td>
+        <td style="color:#888;font-size:11px;">${r.note||''}</td>
+      </tr>`).join('');
+  }
+
+  // Withdrawal history
+  const wdBody = document.getElementById('wd-history');
+  if(!walletLog.length){
+    wdBody.innerHTML='<tr><td colspan="5" class="empty">No withdrawal records yet</td></tr>';
+  } else {
+    wdBody.innerHTML=[...walletLog].reverse().map(r=>`
+      <tr>
+        <td class="td-left">${fmtDate(r.date)}</td>
+        <td style="font-weight:600;">${r.name||r.login}</td>
+        <td style="font-family:monospace;color:#2E75B6;font-weight:700;">${r.login}</td>
+        <td style="text-align:right;padding-right:10px;font-weight:700;color:#C00000;">${fmt$(r.amount)}</td>
+        <td style="color:#888;font-size:11px;">${r.notes||''}</td>
+      </tr>`).join('');
+  }
+}
+
+function switchHistTab(tab){
+  document.getElementById('hist-mt5').classList.toggle('hidden', tab!=='mt5');
+  document.getElementById('hist-wd').classList.toggle('hidden',  tab!=='wd');
+  document.getElementById('htab-mt5').classList.toggle('active', tab==='mt5');
+  document.getElementById('htab-wd').classList.toggle('active',  tab==='wd');
+}
+
+function openWithdrawal(login, name, bal){
+  document.getElementById('wd-client-name').textContent = name;
+  document.getElementById('wd-client-login').textContent = login;
+  document.getElementById('wd-available').textContent = fmt$(bal);
+  document.getElementById('wd-login-hidden').value = login;
+  document.getElementById('wd-amount').value = bal.toFixed(2);
+  document.getElementById('wd-notes').value = '';
+  document.getElementById('wd-error').textContent = '';
+  // Fill login credentials
+  const accDataWd = accounts.find(a=>a.login===login);
+  document.getElementById('wd-cred-email').textContent = accDataWd&&accDataWd.skyrissEmail ? accDataWd.skyrissEmail : '(not set)';
+  document.getElementById('wd-cred-pass').textContent  = accDataWd&&accDataWd.crmPass      ? accDataWd.crmPass      : '(not set)';
+  document.getElementById('wd-modal').classList.remove('hidden');
+}
+function confirmWithdrawal(){
+  const login  = document.getElementById('wd-login-hidden').value;
+  const amount = parseFloat(document.getElementById('wd-amount').value)||0;
+  const notes  = document.getElementById('wd-notes').value.trim();
+  const acc    = accounts.find(a=>a.login===login);
+  const bal    = getWalletBal(login);
+  if(amount<=0){ document.getElementById('wd-error').textContent='Please enter an amount.'; return; }
+  if(amount>bal){ document.getElementById('wd-error').textContent=`Amount exceeds available balance (${fmt$(bal)}).`; return; }
+  walletLog.push({date:getToday(), login, name:acc?acc.name:login, amount:parseFloat(amount.toFixed(2)), notes});
+  persistAndSync();
+  closeModal('wd-modal');
+  showAlert(`✅ Withdrawal recorded — ${acc?acc.name:login}: ${fmt$(amount)}`, 'ok');
+  renderWallet();
+  renderDashboard();
+}
+
+// ═══════════════════════════════════════════════════════
+// LEDGER
+// ═══════════════════════════════════════════════════════
+function renderLedger(){
+  const filterLogin = document.getElementById('ledger-filter').value;
+  // Populate filter dropdown
+  const sel = document.getElementById('ledger-filter');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">All Accounts</option>' +
+    accounts.map(a=>`<option value="${a.login}" ${a.login===current?'selected':''}>${a.name} (${a.login})</option>`).join('');
+
+  const allEntries = [...ledger.map(r=>({...r,src:'ledger'})),
+                      ...walletLog.map(r=>({...r,type:'withdrawal',src:'wallet'}))];
+  const filtered = filterLogin ? allEntries.filter(r=>r.login===filterLogin) : allEntries;
+  filtered.sort((a,b)=>b.date.localeCompare(a.date));
+
+  const body = document.getElementById('ledger-body');
+  if(!filtered.length){ body.innerHTML='<tr><td colspan="6" class="empty">No entries found</td></tr>'; return; }
+
+  body.innerHTML = filtered.map(r=>{
+    let tag, amt, clr;
+    if(r.type==='fee'){
+      tag='<span style="background:#E8F5E9;color:#2e7d32;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;">Fee Added</span>';
+      amt='+'+fmt$(r.amount); clr='#2e7d32';
+    } else if(r.type==='transfer'){
+      tag='<span style="background:#E3F2FD;color:#0d47a1;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;">MT5&#8594;Wallet</span>';
+      amt='+'+fmt$(r.amount); clr='#0d47a1';
+    } else {
+      tag='<span style="background:#FFEBEE;color:#b71c1c;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;">Withdrawal</span>';
+      amt='-'+fmt$(r.amount); clr='#C00000';
+    }
+    return `<tr>
+      <td class="td-left">${fmtDate(r.date)}</td>
+      <td style="font-family:monospace;color:#2E75B6;font-weight:700;">${r.login}</td>
+      <td style="text-align:left;">${r.name}</td>
+      <td>${tag}</td>
+      <td style="text-align:right;padding-right:10px;font-weight:700;color:${clr};">${amt}</td>
+      <td style="color:#888;font-size:11px;">${r.note||r.notes||''}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════
+function renderDashboard(){
+  const totalFees = ledger.filter(r=>r.type==='fee').reduce((s,r)=>s+r.amount,0);
+  const totalTr   = ledger.filter(r=>r.type==='transfer').reduce((s,r)=>s+r.amount,0);
+  const totalWd   = walletLog.reduce((s,r)=>s+r.amount,0);
+  const todayFees = ledger.filter(r=>r.type==='fee'&&r.date===getToday()).reduce((s,r)=>s+r.amount,0);
+  const mt5Pend   = Math.max(0,totalFees-totalTr);
+  const walPend   = Math.max(0,totalTr-totalWd);
+
+  document.getElementById('kpi-grid').innerHTML=[
+    {lbl:'Today Ki Fees',       val:fmt$(todayFees), cls:''},
+    {lbl:'MT5 Pending (Total)',val:fmt$(mt5Pend),  cls:'kpi-a'},
+    {lbl:'MT5→Wallet Done',   val:fmt$(totalTr),   cls:'kpi-g'},
+    {lbl:'Wallet Pending',    val:fmt$(walPend),   cls:walPend>=MIN_WD?'kpi-g':'kpi-a'},
+    {lbl:'Total Withdrawn',   val:fmt$(totalWd),   cls:''},
+    {lbl:'Total Fees (All Time)',   val:fmt$(totalFees), cls:''},
+  ].map(k=>`<div class="kpi ${k.cls}"><div class="kpi-lbl">${k.lbl}</div><div class="kpi-val">${k.val}</div></div>`).join('');
+
+  const tbody = document.getElementById('dash-body');
+  const rows = accounts.map((acc,i)=>{
+    const mt5 = getMT5Pending(acc.login);
+    const wal = getWalletBal(acc.login);
+    const totalF = ledger.filter(r=>r.login===acc.login&&r.type==='fee').reduce((s,r)=>s+r.amount,0);
+    if(totalF===0&&mt5===0&&wal===0) return '';
+    const bg = i%2===0?'':' style="background:#fafbff;"';
+    return `<tr${bg}>
+      <td class="td-left" style="font-weight:600;">${acc.name}</td>
+      <td style="font-family:monospace;color:#2E75B6;font-weight:700;">${acc.login}</td>
+      <td>${acc.type==='USD'?'<span class="tag-usd">USD</span>':'<span class="tag-cent">Cent</span>'}</td>
+      <td style="text-align:right;font-weight:700;">${fmt$(mt5)}</td>
+      <td style="text-align:right;font-weight:700;">${fmt$(wal)}</td>
+      <td>${mt5>=MIN_MT5?'<span class="st-ready">READY</span>':'<span class="st-wait">'+fmt$(mt5)+'</span>'}</td>
+      <td>${wal>=MIN_WD?'<span class="st-wd-ready">WITHDRAW</span>':'<span class="st-wd-wait">'+fmt$(wal)+'/'+fmt$(MIN_WD)+'</span>'}</td>
+    </tr>`;
+  }).filter(Boolean).join('');
+  tbody.innerHTML = rows||'<tr><td colspan="7" class="empty">No data found</td></tr>';
+}
+
+// ═══════════════════════════════════════════════════════
+// ACCOUNTS
+// ═══════════════════════════════════════════════════════
+function renderAccounts(){
+  const tbody = document.getElementById('accounts-body');
+  document.getElementById('acc-count').textContent = accounts.length;
+  tbody.innerHTML = accounts.map((acc,i)=>{
+    const statusBadge = acc.status==='Active'
+      ? '<span style="background:#E8F5E9;color:#2e7d32;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:700;">Active</span>'
+      : '<span style="background:#f5f5f5;color:#888;font-size:11px;padding:2px 8px;border-radius:4px;">Inactive</span>';
+    const bg = i%2===0?'':' style="background:#fafbff;"';
+    return `<tr${bg}>
+      <td class="td-left" style="font-weight:600;">${acc.name}</td>
+      <td style="font-family:monospace;color:#2E75B6;font-weight:700;">${acc.login}</td>
+      <td>${acc.type==='USD'?'<span class="tag-usd">USD</span>':'<span class="tag-cent">Cent</span>'}</td>
+      <td style="font-size:11px;color:#555;">${acc.skyrissEmail||'—'} ${acc.skyrissEmail?`<button class="copy-btn" onclick="copyText('${acc.skyrissEmail}',this)">Copy</button>`:''}</td>
+      <td style="font-family:monospace;font-size:11px;">${acc.crmPass||'—'} ${acc.crmPass?`<button class="copy-btn" onclick="copyText('${acc.crmPass}',this)">Copy</button>`:''}</td>
+      <td>${statusBadge}</td>
+      <td>
+        <button class="btn btn-blue btn-sm" onclick="openEditAccount(${i})" style="margin-right:4px;">Edit</button>
+        <button class="btn btn-sm btn-outline" onclick="toggleStatus(${i})">${acc.status==='Active'?'Deactivate':'Activate'}</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openAddAccount(){
+  document.getElementById('acc-modal-title').textContent = '+ New MT5 Account';
+  document.getElementById('acc-edit-idx').value = -1;
+  document.getElementById('acc-name').value = '';
+  document.getElementById('acc-login').value = '';
+  document.getElementById('acc-type').value = 'Cent';
+  document.getElementById('acc-status').value = 'Active';
+  document.getElementById('acc-email').value = '';
+  document.getElementById('acc-crmpass').value = '';
+  document.getElementById('acc-error').textContent = '';
+  document.getElementById('acc-modal').classList.remove('hidden');
+}
+function openEditAccount(idx){
+  const acc = accounts[idx];
+  document.getElementById('acc-modal-title').textContent = 'Edit Account';
+  document.getElementById('acc-edit-idx').value = idx;
+  document.getElementById('acc-name').value = acc.name;
+  document.getElementById('acc-login').value = acc.login;
+  document.getElementById('acc-type').value = acc.type;
+  document.getElementById('acc-status').value = acc.status;
+  document.getElementById('acc-email').value = acc.skyrissEmail||'';
+  document.getElementById('acc-crmpass').value = acc.crmPass||'';
+  document.getElementById('acc-error').textContent = '';
+  document.getElementById('acc-modal').classList.remove('hidden');
+}
+function saveAccount(){
+  const idx    = parseInt(document.getElementById('acc-edit-idx').value);
+  const name        = document.getElementById('acc-name').value.trim();
+  const login       = document.getElementById('acc-login').value.trim();
+  const type        = document.getElementById('acc-type').value;
+  const status      = document.getElementById('acc-status').value;
+  const skyrissEmail= document.getElementById('acc-email').value.trim();
+  const crmPass     = document.getElementById('acc-crmpass').value.trim();
+  const errEl       = document.getElementById('acc-error');
+
+  if(!name||!login){ errEl.textContent='Name and Login are required.'; return; }
+  // Check duplicate login
+  const dup = accounts.findIndex((a,i)=>a.login===login && i!==idx);
+  if(dup>=0){ errEl.textContent='This MT5 Login already exists.'; return; }
+
+  if(idx===-1){
+    accounts.push({name,login,type,status,skyrissEmail,crmPass});
+    showAlert(`✅ Account added: ${name}`, 'ok');
+  } else {
+    accounts[idx]={...accounts[idx],name,login,type,status,skyrissEmail,crmPass};
+    showAlert(`✅ Account updated: ${name}`, 'ok');
+  }
+  persistAndSync();
+  closeModal('acc-modal');
+  renderAccounts();
+}
+function toggleStatus(idx){
+  accounts[idx].status = accounts[idx].status==='Active' ? 'Inactive' : 'Active';
+  persistAndSync();
+  renderAccounts();
+}
+
+// ═══════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════
+function exportData(){
+  const data = {accounts, ledger, walletLog, exportedAt: new Date().toISOString()};
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'bis-tracker-backup-'+getToday()+'.json';
+  a.click();
+}
+function importData(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!confirm('This will replace all existing data. Continue?')) return;
+      if(data.accounts) accounts = data.accounts;
+      if(data.ledger)   ledger   = data.ledger;
+      if(data.walletLog) walletLog = data.walletLog;
+      persistAndSync();
+      renderEntry(); renderAccounts(); renderWallet();
+      showAlert('✅ Data imported successfully!', 'ok');
+    } catch(err){
+      showAlert('Import failed — invalid JSON file.', 'err');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value='';
+}
+
+// ═══════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════
+// ── HISTORY PAGE ─────────────────────────────────────────────────────────────
+let currentHistTab2 = 'mt5';
+
+function initHistoryPage(){
+  // Populate account filter
+  const sel = document.getElementById('hist-account-filter');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">All Accounts</option>' +
+    accounts.map(a=>`<option value="${a.login}" ${a.login===cur?'selected':''}>${a.name} (${a.login})</option>`).join('');
+  renderHistoryPage();
+}
+
+function switchHistTab2(tab){
+  currentHistTab2 = tab;
+  document.getElementById('hist2-mt5').classList.toggle('hidden', tab!=='mt5');
+  document.getElementById('hist2-wd').classList.toggle('hidden',  tab!=='wd');
+  document.getElementById('htab2-mt5').classList.toggle('active', tab==='mt5');
+  document.getElementById('htab2-wd').classList.toggle('active',  tab==='wd');
+  renderHistoryPage();
+}
+
+function clearHistFilters(){
+  document.getElementById('hist-date-from').value = '';
+  document.getElementById('hist-date-to').value   = '';
+  document.getElementById('hist-account-filter').value = '';
+  renderHistoryPage();
+}
+
+function renderHistoryPage(){
+  const dateFrom   = document.getElementById('hist-date-from').value;
+  const dateTo     = document.getElementById('hist-date-to').value;
+  const loginFilt  = document.getElementById('hist-account-filter').value;
+
+  function applyFilters(arr){
+    return arr.filter(r=>{
+      if(dateFrom && r.date < dateFrom) return false;
+      if(dateTo   && r.date > dateTo)   return false;
+      if(loginFilt && r.login !== loginFilt) return false;
+      return true;
+    });
+  }
+
+  if(currentHistTab2 === 'mt5'){
+    const transfers = applyFilters(ledger.filter(r=>r.type==='transfer'));
+    transfers.sort((a,b)=>b.date.localeCompare(a.date));
+    const tbody = document.getElementById('hist2-mt5-body');
+    let total = 0;
+    if(!transfers.length){
+      tbody.innerHTML='<tr><td colspan="6" class="empty">No MT5→Wallet transfer records match the filters</td></tr>';
+    } else {
+      tbody.innerHTML = transfers.map((r,i)=>{
+        total += r.amount;
+        const acc = accounts.find(a=>a.login===r.login);
+        const bg  = i%2===0?'':'style="background:#fafbff;"';
+        return `<tr ${bg}>
+          <td style="text-align:left;padding-left:12px;white-space:nowrap;">${fmtDate(r.date)}</td>
+          <td style="text-align:left;font-weight:600;">${r.name}</td>
+          <td style="font-family:monospace;color:#2E75B6;font-weight:700;">${r.login}</td>
+          <td>${acc?(acc.type==='USD'?'<span class="tag-usd">USD</span>':'<span class="tag-cent">Cent</span>'):'—'}</td>
+          <td style="text-align:right;padding-right:12px;font-weight:700;color:#2E75B6;">${fmt$(r.amount)}</td>
+          <td style="color:#888;font-size:11px;">${r.note||''}</td>
+        </tr>`;
+      }).join('');
+    }
+    document.getElementById('hist2-mt5-total').textContent = fmt$(total);
+    document.getElementById('hist-count').textContent = transfers.length;
+
+  } else {
+    const wds = applyFilters(walletLog);
+    wds.sort((a,b)=>b.date.localeCompare(a.date));
+    const tbody = document.getElementById('hist2-wd-body');
+    let total = 0;
+    if(!wds.length){
+      tbody.innerHTML='<tr><td colspan="6" class="empty">No withdrawal records match the filters</td></tr>';
+    } else {
+      tbody.innerHTML = wds.map((r,i)=>{
+        total += r.amount;
+        const acc = accounts.find(a=>a.login===r.login);
+        const bg  = i%2===0?'':'style="background:#fafbff;"';
+        return `<tr ${bg}>
+          <td style="text-align:left;padding-left:12px;white-space:nowrap;">${fmtDate(r.date)}</td>
+          <td style="text-align:left;font-weight:600;">${r.name||r.login}</td>
+          <td style="font-family:monospace;color:#2E75B6;font-weight:700;">${r.login}</td>
+          <td>${acc?(acc.type==='USD'?'<span class="tag-usd">USD</span>':'<span class="tag-cent">Cent</span>'):'—'}</td>
+          <td style="text-align:right;padding-right:12px;font-weight:700;color:#C00000;">${fmt$(r.amount)}</td>
+          <td style="color:#888;font-size:11px;">${r.notes||''}</td>
+        </tr>`;
+      }).join('');
+    }
+    document.getElementById('hist2-wd-total').textContent = fmt$(total);
+    document.getElementById('hist-count').textContent = wds.length;
+  }
+}
+
+function copyText(text, btn){
+  navigator.clipboard.writeText(text).then(()=>{
+    const orig = btn.textContent;
+    btn.textContent='✓ Copied!'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent=orig; btn.classList.remove('copied'); }, 2000);
+  });
+}
+function copyCredField(elId, btn){
+  const text = document.getElementById(elId).textContent;
+  if(!text || text==='(not set)' || text==='—') return;
+  navigator.clipboard.writeText(text).then(()=>{
+    const orig = btn.innerHTML;
+    btn.innerHTML='✓ Copied!'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.innerHTML=orig; btn.classList.remove('copied'); }, 2000);
+  });
+}
+function closeModal(id){ document.getElementById(id).classList.add('hidden'); }
+function showTab(name){
+  ['daily','wallet','ledger','dashboard','accounts','history'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('hidden', t!==name);
+  });
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    el.classList.toggle('active', ['daily','wallet','ledger','dashboard','accounts','history'][i]===name);
+  });
+  if(name==='wallet')    renderWallet();
+  if(name==='ledger')    renderLedger();
+  if(name==='dashboard') renderDashboard();
+  if(name==='accounts')  renderAccounts();
+  if(name==='history')   initHistoryPage();
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.overlay').forEach(el=>{
+  el.addEventListener('click', e=>{ if(e.target===el) el.classList.add('hidden'); });
+});
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+function initApp(){
+  initDateBar();
+  renderEntry();
+  // GitHub: show config modal if not configured, else auto-load
+  if(!ghCfg.user || !ghCfg.repo || !ghCfg.token){
+    document.getElementById('gh-modal').classList.remove('hidden');
+    document.getElementById('gh-skip-btn').style.display = 'inline-flex';
+  } else {
+    document.getElementById('gh-modal').classList.add('hidden');
+    ghLoad();
+  }
+}
+
+// Check session on page load
+if(!checkSession()){
+  // Show login screen — wait for user
+  document.getElementById('login-pass').focus();
+}
+</script>
+</body>
+</html>
