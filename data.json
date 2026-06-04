@@ -4,7 +4,7 @@
       "name": "Mehmood Iqbal",
       "login": "17258",
       "type": "USD",
-      "status": "Inactive",
+      "status": "Active",
       "skyrissEmail": "trendify.team02+1011@gmail.com",
       "crmPass": "Password#123"
     },
@@ -171,5 +171,5 @@
   ],
   "ledger": [],
   "walletLog": [],
-  "updatedAt": "2026-06-05T06:56:15.445Z"
+  "updatedAt": "2026-06-05T06:56:18.724Z"
 }
